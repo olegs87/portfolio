@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Олег — Разработчик и дизайнер</title>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;700;900&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: rgba(255,255,255,0.06);
+      --text: #f0ede8;
+      --muted: #666;
+      --accent: #e8ff47;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Manrope', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      cursor: none;
+      overflow-x: hidden;
+    }
+
+    /* CUSTOM CURSOR */
+    .cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(232,255,71,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      mix-blend-mode: difference;
+    }
+    .cursor-ring.hovered { transform: scale(2); border-color: var(--accent); }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 28px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      background: rgba(10,10,10,0.85);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    section { padding: 120px 48px; max-width: 1200px; margin: 0 auto; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 100px;
+      position: relative;
+      max-width: none;
+    }
+    .hero-inner { max-width: 1200px; margin: 0 auto; padding: 0 48px; width: 100%; }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+    .hero-tag::before { content: ''; display: block; width: 24px; height: 1px; background: var(--accent); }
+    .hero h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(3.5rem, 9vw, 9rem);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.4s forwards;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); display: block; }
+    .hero-sub {
+      margin-top: 48px;
+      max-width: 480px;
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.6s forwards;
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 48px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px;
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted);
+      animation: bounce 2s infinite;
+    }
+    .scroll-hint svg { width: 20px; opacity: 0.4; }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 32px;
+      font-family: 'Manrope', sans-serif; font-size: 0.82rem;
+      font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+      text-decoration: none; border: none; cursor: none;
+      transition: all 0.3s ease;
+      position: relative; overflow: hidden;
+    }
+    .btn-primary { background: var(--accent); color: #0a0a0a; }
+    .btn-primary:hover { background: #f5ff80; transform: translateY(-2px); box-shadow: 0 12px 40px rgba(232,255,71,0.25); }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.25); transform: translateY(-2px); }
+    .btn-tg {
+      background: var(--accent);
+      color: #0a0a0a;
+      font-size: 1rem;
+      padding: 18px 48px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      box-shadow: 0 0 0 4px rgba(232,255,71,0.15);
+    }
+    .btn-tg:hover {
+      background: #f5ff80;
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(232,255,71,0.35), 0 0 0 6px rgba(232,255,71,0.12);
+    }
+    .btn-tg svg { flex-shrink: 0; }
+
+    .section-line { width: 100%; height: 1px; background: var(--border); }
+
+    /* ABOUT */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+    .section-label {
+      font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 32px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .about-grid h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 700; line-height: 1.15; letter-spacing: -0.03em;
+    }
+    .about-grid h2 span { color: var(--accent); }
+    .about-right p { color: var(--muted); font-size: 0.95rem; line-height: 1.9; margin-bottom: 20px; }
+    .stats-row { display: flex; gap: 40px; margin-top: 48px; }
+    .stat-item { display: flex; flex-direction: column; }
+    .stat-num { font-family: 'Unbounded', sans-serif; font-size: 2rem; font-weight: 900; color: var(--accent); line-height: 1; }
+    .stat-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.05em; margin-top: 6px; }
+
+    /* SKILLS */
+    .skills-header { margin-bottom: 64px; }
+    .skills-header h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 900; letter-spacing: -0.04em; line-height: 1;
+    }
+    .skills-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border); border: 1px solid var(--border);
+    }
+    .skill-card {
+      background: var(--bg); padding: 40px 36px;
+      transition: background 0.35s ease;
+      position: relative; overflow: hidden;
+    }
+    .skill-card::before {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent); transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .skill-card:hover::before { transform: scaleX(1); }
+    .skill-card:hover { background: var(--surface); }
+    .skill-icon { width: 42px; height: 42px; margin-bottom: 24px; color: var(--accent); }
+    .skill-card h3 {
+      font-family: 'Unbounded', sans-serif; font-size: 0.95rem;
+      font-weight: 700; letter-spacing: -0.01em; margin-bottom: 14px;
+    }
+    .skill-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.75; }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .tag {
+      font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 5px 12px; border: 1px solid var(--border); color: var(--muted);
+      transition: all 0.25s;
+    }
+    .skill-card:hover .tag { border-color: rgba(232,255,71,0.25); color: var(--accent); }
+
+    /* STACK */
+    .stack-section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+    .stack-section h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 900; letter-spacing: -0.04em; line-height: 1;
+      margin-bottom: 64px;
+    }
+    .stack-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .stack-col h4 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 24px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .stack-list { display: flex; flex-direction: column; gap: 0; }
+    .stack-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+      transition: color 0.25s;
+    }
+    .stack-item:hover { color: var(--accent); }
+    .stack-item-name { display: flex; align-items: center; gap: 12px; }
+    .stack-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; opacity: 0.6; }
+    .stack-level {
+      font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); padding: 3px 10px;
+      border: 1px solid var(--border);
+    }
+    .stack-item:hover .stack-level { color: var(--accent); border-color: rgba(232,255,71,0.3); }
+
+    /* PROJECTS */
+    .proj-section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+    .proj-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 56px; }
+    .proj-header h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 900; letter-spacing: -0.04em; line-height: 1;
+    }
+    .proj-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .proj-filter {
+      font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 7px 16px; border: 1px solid var(--border); color: var(--muted);
+      background: none; cursor: none; transition: all 0.25s;
+      font-family: 'Manrope', sans-serif;
+    }
+    .proj-filter.active, .proj-filter:hover {
+      border-color: var(--accent); color: var(--accent);
+    }
+    .proj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .proj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 36px 32px;
+      transition: border-color 0.3s, transform 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .proj-card::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .proj-card:hover::after { transform: scaleX(1); }
+    .proj-card:hover { border-color: rgba(232,255,71,0.2); transform: translateY(-3px); }
+    .proj-card[data-cat="hidden"] { display: none; }
+    .proj-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+    .proj-type {
+      font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--accent); padding: 4px 12px; border: 1px solid rgba(232,255,71,0.3);
+    }
+    .proj-icon { font-size: 1.6rem; line-height: 1; }
+    .proj-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.05rem; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .proj-desc { font-size: 0.84rem; color: var(--muted); line-height: 1.75; margin-bottom: 24px; }
+    .proj-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .proj-tag {
+      font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 4px 10px; border: 1px solid var(--border); color: var(--muted);
+    }
+
+    /* PROCESS */
+    .process-list { display: flex; flex-direction: column; }
+    .process-item {
+      display: grid; grid-template-columns: 80px 1fr;
+      gap: 40px; padding: 40px 0;
+      border-bottom: 1px solid var(--border); align-items: start;
+    }
+    .process-item:hover .process-num { color: var(--accent); }
+    .process-num {
+      font-family: 'Unbounded', sans-serif; font-size: 0.65rem;
+      letter-spacing: 0.15em; color: var(--muted); transition: color 0.3s; padding-top: 4px;
+    }
+    .process-content h3 {
+      font-family: 'Unbounded', sans-serif; font-size: 1.15rem;
+      font-weight: 700; letter-spacing: -0.02em; margin-bottom: 12px;
+    }
+    .process-content p { font-size: 0.88rem; color: var(--muted); max-width: 560px; line-height: 1.8; }
+
+    /* CONTACT */
+    .contact-wrap { text-align: center; max-width: 640px; margin: 0 auto; }
+    .contact-wrap h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 24px;
+    }
+    .contact-wrap h2 span { color: var(--accent); }
+    .contact-wrap p { color: var(--muted); font-size: 0.95rem; margin-bottom: 48px; line-height: 1.8; }
+    .contact-links { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.72rem; color: var(--muted); letter-spacing: 0.05em;
+    }
+    footer .acc { color: var(--accent); }
+
+    /* ── АНИМАЦИЯ ПОЯВЛЕНИЯ ──────────────────────────────
+       ВАЖНО: в CSS НЕТ opacity:0 для .reveal!
+       Скрытие ставится только через JS — если JS не сработает,
+       весь контент остаётся видимым по умолчанию. */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .do-anim {
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .do-anim.hidden {
+      opacity: 0;
+      transform: translateY(26px);
+    }
+    .do-anim.shown {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+
+    /* GLOW */
+    .glow-blob {
+      position: fixed; width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,255,71,0.04) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+      transition: left 0.8s ease, top 0.8s ease;
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .nav-links { display: none; }
+      section { padding: 80px 24px; }
+      .hero-inner { padding: 0 24px; }
+      .about-grid { grid-template-columns: 1fr; gap: 48px; }
+      .skills-grid { grid-template-columns: 1fr; }
+      .stack-section { padding: 80px 24px; }
+      .stack-cols { grid-template-columns: 1fr; gap: 32px; }
+      .proj-section { padding: 80px 24px; }
+      .proj-header { flex-direction: column; gap: 24px; align-items: flex-start; }
+      .proj-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="glow-blob" id="glowBlob"></div>
+
+  <nav>
+    <a href="#" class="nav-logo">О<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="#about">Обо мне</a></li>
+      <li><a href="#skills">Услуги</a></li>
+      <li><a href="#stack">Стек</a></li>
+      <li><a href="#projects">Проекты</a></li>
+      <li><a href="#process">Процесс</a></li>
+      <li><a href="#contact">Контакт</a></li>
+    </ul>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">Разработчик, верстальщик сайтов, копирайтер и дизайнер</div>
+      <h1>Привет,<br>я — <em>Олег.</em></h1>
+      <p class="hero-sub">
+        Создаю сайты, пишу код и тексты, которые работают на результат. Быстро. Чисто.
+      </p>
+    </div>
+    <div class="scroll-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+      scroll
+    </div>
+  </div>
+
+  <div class="section-line"></div>
+
+  <section id="about">
+    <div class="about-grid reveal">
+      <div class="about-left">
+        <div class="section-label">Обо мне</div>
+        <h2>Код + слова<br><span>= результат</span></h2>
+        <div class="stats-row">
+          <div class="stat-item">
+            <span class="stat-num">↗</span>
+            <span class="stat-label">разные проекты</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">3+</span>
+            <span class="stat-label">года опыта</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">∞</span>
+            <span class="stat-label">идей</span>
+          </div>
+        </div>
+      </div>
+      <div class="about-right">
+        <p>Я — Олег, разработчик, верстальщик, дизайнер и копирайтер на фрилансе. Работаю на стыке технологий и контента: строю сайты любой сложности и наполняю их текстами, которые продают.</p>
+        <p>Ценю качество и скорость — сдаю проекты в срок без потери в качестве. Мой подход прост: глубоко погружаюсь в задачу, нахожу точное решение и реализую его без лишних итераций.</p>
+        <p>Благодаря гибкости и оптимальным процессам всегда готов предложить цену ниже рынка — без ущерба для результата. Открыт к любым проектам: от лендингов до чат-ботов и автоматизации.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-line"></div>
+
+  <section id="skills">
+    <div class="skills-header reveal">
+      <h2>Что<br>я делаю</h2>
+    </div>
+    <div class="skills-grid reveal">
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <h3>Разработка сайтов</h3>
+        <p>Лендинги, корпоративные сайты, интернет-магазины, порталы — любой уровень сложности с нуля до запуска.</p>
+        <div class="skill-tags"><span class="tag">Landing</span><span class="tag">E-commerce</span><span class="tag">CMS</span><span class="tag">SPA</span></div>
+      </div>
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <h3>Программирование</h3>
+        <p>Владею несколькими языками и фреймворками. Пишу чистый, поддерживаемый код под любую задачу.</p>
+        <div class="skill-tags"><span class="tag">HTML/CSS</span><span class="tag">JavaScript</span><span class="tag">Python</span><span class="tag">React</span></div>
+      </div>
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <h3>Чат-боты</h3>
+        <p>Разрабатываю умных ботов для Telegram, WhatsApp, VK — с логикой, интеграциями и автоворонками.</p>
+        <div class="skill-tags"><span class="tag">Telegram</span><span class="tag">WhatsApp</span><span class="tag">AI-боты</span><span class="tag">Воронки</span></div>
+      </div>
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <h3>Копирайтинг</h3>
+        <p>Тексты для сайтов, рекламы и соцсетей — быстро, по делу, с упором на конверсию.</p>
+        <div class="skill-tags"><span class="tag">SEO-тексты</span><span class="tag">Лендинги</span><span class="tag">Соцсети</span><span class="tag">Email</span></div>
+      </div>
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+        <h3>UI/UX дизайн</h3>
+        <p>Проектирую интерфейсы с акцентом на пользовательский опыт. Прототипы, макеты, дизайн-системы.</p>
+        <div class="skill-tags"><span class="tag">Figma</span><span class="tag">Прототипы</span><span class="tag">Адаптив</span></div>
+      </div>
+      <div class="skill-card">
+        <svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <h3>Автоматизация</h3>
+        <p>Подключаю API, настраиваю интеграции, автоматизирую рутину — экономлю ваше время и деньги.</p>
+        <div class="skill-tags"><span class="tag">API</span><span class="tag">Zapier</span><span class="tag">Make</span><span class="tag">Скрипты</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-line"></div>
+
+  <!-- STACK -->
+  <div id="stack" class="stack-section">
+    <h2 class="reveal">Языки и<br>инструменты</h2>
+    <div class="stack-cols">
+
+      <div class="stack-col reveal">
+        <h4>Языки программирования</h4>
+        <div class="stack-list">
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>HTML / CSS</span><span class="stack-level">Продвинутый</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>JavaScript</span><span class="stack-level">Продвинутый</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>Python</span><span class="stack-level">Уверенный</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>TypeScript</span><span class="stack-level">Базовый</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>SQL</span><span class="stack-level">Уверенный</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>Bash / Shell</span><span class="stack-level">Базовый</span></div>
+        </div>
+      </div>
+
+      <div class="stack-col reveal">
+        <h4>Фреймворки и библиотеки</h4>
+        <div class="stack-list">
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>React</span><span class="stack-level">Уверенный</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>Node.js</span><span class="stack-level">Уверенный</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>aiogram / python-telegram-bot</span><span class="stack-level">Продвинутый</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>Flask / FastAPI</span><span class="stack-level">Уверенный</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>WordPress / WooCommerce</span><span class="stack-level">Продвинутый</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>Tailwind CSS</span><span class="stack-level">Уверенный</span></div>
+        </div>
+      </div>
+
+      <div class="stack-col reveal">
+        <h4>Программы и сервисы</h4>
+        <div class="stack-list">
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>Figma</span><span class="stack-level">Продвинутый</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>VS Code</span><span class="stack-level">Продвинутый</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>Git / GitHub</span><span class="stack-level">Уверенный</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>Photoshop / Illustrator</span><span class="stack-level">Базовый</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>Postman</span><span class="stack-level">Уверенный</span></div>
+          <div class="stack-item"><span class="stack-item-name"><span class="stack-dot"></span>Notion / Trello</span><span class="stack-level">Продвинутый</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-line"></div>
+
+  <!-- PROJECTS -->
+  <div id="projects" class="proj-section">
+    <div class="proj-header reveal">
+      <h2>Проекты</h2>
+      <div class="proj-filters">
+        <button class="proj-filter active" onclick="filterProj(this,'all')">Все</button>
+        <button class="proj-filter" onclick="filterProj(this,'frontend')">Frontend</button>
+        <button class="proj-filter" onclick="filterProj(this,'backend')">Backend</button>
+        <button class="proj-filter" onclick="filterProj(this,'bot')">Боты</button>
+        <button class="proj-filter" onclick="filterProj(this,'app')">Приложения</button>
+      </div>
+    </div>
+    <div class="proj-grid" id="projGrid">
+
+      <div class="proj-card reveal" data-cat="frontend">
+        <div class="proj-top"><span class="proj-type">Frontend</span><span class="proj-icon">🎨</span></div>
+        <div class="proj-title">Лендинг для студии интерьерного дизайна</div>
+        <p class="proj-desc">Одностраничный сайт-визитка с портфолио работ, формой заявки и плавной анимацией. Упор на визуальную подачу: полноэкранные галереи, параллакс-эффекты, тёмная тема. Сайт заменил заказчику соцсеть и стал основным источником заявок.</p>
+        <div class="proj-tags"><span class="proj-tag">HTML/CSS</span><span class="proj-tag">JavaScript</span><span class="proj-tag">Анимации</span><span class="proj-tag">Адаптив</span></div>
+      </div>
+
+      <div class="proj-card reveal" data-cat="frontend">
+        <div class="proj-top"><span class="proj-type">Frontend</span><span class="proj-icon">🛒</span></div>
+        <div class="proj-title">Интернет-магазин товаров для дома</div>
+        <p class="proj-desc">Многостраничный магазин на WordPress + WooCommerce с кастомной вёрсткой, фильтрами и интеграцией платёжных систем. Личный кабинет, история заказов и адаптивный каталог с сортировкой по категориям.</p>
+        <div class="proj-tags"><span class="proj-tag">WordPress</span><span class="proj-tag">WooCommerce</span><span class="proj-tag">PHP</span><span class="proj-tag">CSS</span></div>
+      </div>
+
+      <div class="proj-card reveal" data-cat="frontend">
+        <div class="proj-top"><span class="proj-type">Frontend</span><span class="proj-icon">💼</span></div>
+        <div class="proj-title">Корпоративный сайт юридической фирмы</div>
+        <p class="proj-desc">Строгий деловой сайт с разделами услуг, командой и блогом. Чистый HTML/CSS/JS без CMS — быстрая загрузка, SEO-оптимизация под ключ, форма обратной связи со сторонней интеграцией.</p>
+        <div class="proj-tags"><span class="proj-tag">HTML/CSS</span><span class="proj-tag">JavaScript</span><span class="proj-tag">SEO</span></div>
+      </div>
+
+      <div class="proj-card reveal" data-cat="backend">
+        <div class="proj-top"><span class="proj-type">Backend</span><span class="proj-icon">⚙️</span></div>
+        <div class="proj-title">REST API для сервиса доставки еды</div>
+        <p class="proj-desc">Backend на FastAPI с авторизацией, управлением заказами, PostgreSQL и системой уведомлений. Swagger-документация, деплой на VPS. API подключён к мобильному приложению заказчика.</p>
+        <div class="proj-tags"><span class="proj-tag">Python</span><span class="proj-tag">FastAPI</span><span class="proj-tag">PostgreSQL</span><span class="proj-tag">Docker</span></div>
+      </div>
+
+      <div class="proj-card reveal" data-cat="backend">
+        <div class="proj-top"><span class="proj-type">Backend</span><span class="proj-icon">🔗</span></div>
+        <div class="proj-title">Парсер и агрегатор объявлений</div>
+        <p class="proj-desc">Автосбор объявлений с нескольких платформ, фильтрация дублей, сохранение в базу и выгрузка по расписанию. Используется командой для мониторинга рынка и поиска сделок.</p>
+        <div class="proj-tags"><span class="proj-tag">Python</span><span class="proj-tag">Selenium</span><span class="proj-tag">SQLite</span><span class="proj-tag">Cron</span></div>
+      </div>
+
+      <div class="proj-card reveal" data-cat="bot">
+        <div class="proj-top"><span class="proj-type">Telegram-бот</span><span class="proj-icon">🤖</span></div>
+        <div class="proj-title">Бот-менеджер для онлайн-школы</div>
+        <p class="proj-desc">Запись на курсы, приём оплат через ЮKassa, рассылка домашних заданий и напоминаний, выдача сертификатов. Снял с администраторов 80% рутинной переписки и ускорил обработку заявок.</p>
+        <div class="proj-tags"><span class="proj-tag">aiogram</span><span class="proj-tag">Python</span><span class="proj-tag">ЮKassa API</span><span class="proj-tag">SQLite</span></div>
+      </div>
+
+      <div class="proj-card reveal" data-cat="bot">
+        <div class="proj-top"><span class="proj-type">Telegram-бот</span><span class="proj-icon">📊</span></div>
+        <div class="proj-title">Бот для учёта финансов малого бизнеса</div>
+        <p class="proj-desc">Личный финансовый трекер: доходы/расходы по категориям, ежедневные и месячные отчёты в виде таблиц и диаграмм, экспорт в Excel. Простой UX — управляется одним пальцем прямо из чата.</p>
+        <div class="proj-tags"><span class="proj-tag">Python</span><span class="proj-tag">aiogram</span><span class="proj-tag">Matplotlib</span><span class="proj-tag">openpyxl</span></div>
+      </div>
+
+      <div class="proj-card reveal" data-cat="bot">
+        <div class="proj-top"><span class="proj-type">Telegram-бот</span><span class="proj-icon">🏪</span></div>
+        <div class="proj-title">Мини-магазин в Telegram</div>
+        <p class="proj-desc">Каталог товаров прямо в мессенджере: карточки с фото, корзина, оформление заказа, оплата через Telegram Payments. Уведомления менеджеру в реальном времени. Запущен без отдельного сайта за 3 дня.</p>
+        <div class="proj-tags"><span class="proj-tag">Python</span><span class="proj-tag">Telegram Payments</span><span class="proj-tag">aiogram</span></div>
+      </div>
+
+      <div class="proj-card reveal" data-cat="app">
+        <div class="proj-top"><span class="proj-type">Веб-приложение</span><span class="proj-icon">📋</span></div>
+        <div class="proj-title">Таск-менеджер для фрилансеров</div>
+        <p class="proj-desc">SPA на React: управление задачами, дедлайнами и статусами. Локальное хранилище, тёмная тема, drag-and-drop между колонками Kanban. Сделан для личного использования, впоследствии передан заказчику.</p>
+        <div class="proj-tags"><span class="proj-tag">React</span><span class="proj-tag">JavaScript</span><span class="proj-tag">LocalStorage</span><span class="proj-tag">CSS</span></div>
+      </div>
+
+      <div class="proj-card reveal" data-cat="app">
+        <div class="proj-top"><span class="proj-type">Веб-приложение</span><span class="proj-icon">📈</span></div>
+        <div class="proj-title">Дашборд аналитики для небольшого магазина</div>
+        <p class="proj-desc">Панель с графиками продаж, топом товаров и статистикой посещений. Подключена к Google Sheets как базе данных — заказчик сам вносит данные, дашборд обновляется автоматически. Без сложной инфраструктуры.</p>
+        <div class="proj-tags"><span class="proj-tag">JavaScript</span><span class="proj-tag">Chart.js</span><span class="proj-tag">Google Sheets API</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-line"></div>
+
+  <section id="process">
+    <div class="section-label reveal">Как я работаю</div>
+    <div class="process-list">
+      <div class="process-item reveal">
+        <div class="process-num">01</div>
+        <div class="process-content">
+          <h3>Брифинг и анализ</h3>
+          <p>Разбираемся в задаче вместе. Выясняю цель, аудиторию и ожидания — чтобы предложить точное решение, а не угадывать.</p>
+        </div>
+      </div>
+      <div class="process-item reveal">
+        <div class="process-num">02</div>
+        <div class="process-content">
+          <h3>Предложение и оценка</h3>
+          <p>Даю чёткий план: сроки, стоимость, этапы. Никаких размытых обещаний — только конкретика.</p>
+        </div>
+      </div>
+      <div class="process-item reveal">
+        <div class="process-num">03</div>
+        <div class="process-content">
+          <h3>Разработка</h3>
+          <p>Работаю итерациями с промежуточными показами. Вы всегда знаете, на каком этапе проект и что происходит.</p>
+        </div>
+      </div>
+      <div class="process-item reveal">
+        <div class="process-num">04</div>
+        <div class="process-content">
+          <h3>Запуск и поддержка</h3>
+          <p>Сдаю результат, провожу по нему, при необходимости остаюсь на поддержку. Не пропадаю после сдачи.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-line"></div>
+
+  <section id="contact">
+    <div class="contact-wrap reveal">
+      <div class="section-label" style="justify-content:center;margin-bottom:32px">Контакты</div>
+      <h2>Есть<br><span>проект?</span></h2>
+      <p>Напишите — обсудим идею, сроки и бюджет.<br>Отвечаю быстро, говорю прямо.</p>
+      <div class="contact-links">
+        <a href="https://t.me/olegfl87" class="btn btn-tg" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z"/></svg>
+          Написать в Telegram
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="acc">Олег</span>
+    <span>© 2025 — Все права защищены</span>
+    <span>Сделано с умом</span>
+  </footer>
+
+  <script>
+    // ── CURSOR
+    var cur  = document.getElementById('cursor');
+    var ring = document.getElementById('cursorRing');
+    var blob = document.getElementById('glowBlob');
+    var mx=0, my=0, rx=0, ry=0;
+    document.addEventListener('mousemove', function(e){
+      mx=e.clientX; my=e.clientY;
+      cur.style.left=(mx-5)+'px'; cur.style.top=(my-5)+'px';
+      blob.style.left=(mx-300)+'px'; blob.style.top=(my-300)+'px';
+    });
+    (function loop(){ rx+=(mx-rx-18)*0.12; ry+=(my-ry-18)*0.12;
+      ring.style.left=rx+'px'; ring.style.top=ry+'px';
+      requestAnimationFrame(loop);
+    })();
+    document.querySelectorAll('a,button,.skill-card').forEach(function(el){
+      el.addEventListener('mouseenter',function(){ ring.classList.add('hovered'); });
+      el.addEventListener('mouseleave',function(){ ring.classList.remove('hovered'); });
+    });
+
+    // ── SCROLL REVEAL
+    // Ключевое правило: opacity:0 ставим ТОЛЬКО здесь, в JS.
+    // Если скрипт не выполнится — весь контент виден изначально.
+    var items = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+
+    // Сначала добавляем класс перехода и скрытия через JS
+    items.forEach(function(el){ el.classList.add('do-anim','hidden'); });
+
+    function reveal(){
+      var wh = window.innerHeight;
+      items.forEach(function(el){
+        if(el.classList.contains('shown')) return;
+        var top = el.getBoundingClientRect().top;
+        if(top < wh - 20){
+          el.classList.remove('hidden');
+          el.classList.add('shown');
+        }
+      });
+    }
+
+    // Запуск сразу, при скролле и ресайзе
+    reveal();
+    window.addEventListener('scroll', reveal, {passive:true});
+    window.addEventListener('resize', reveal, {passive:true});
+
+    // Повторные проверки с задержкой (для медленных браузеров)
+    setTimeout(reveal, 200);
+    setTimeout(reveal, 600);
+    setTimeout(reveal, 1200);
+
+    // Абсолютная страховка — через 2.5 сек показать всё
+    setTimeout(function(){
+      items.forEach(function(el){
+        el.classList.remove('hidden');
+        el.classList.add('shown');
+      });
+    }, 2500);
+
+    // ── PROJECTS FILTER
+    function filterProj(btn, cat) {
+      document.querySelectorAll('.proj-filter').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('.proj-card').forEach(function(card){
+        if(cat === 'all' || card.getAttribute('data-cat') === cat){
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // ── LOGO PULSE
+    var ls = document.querySelector('.nav-logo span');
+    setInterval(function(){
+      ls.style.opacity='0.3';
+      setTimeout(function(){ ls.style.opacity='1'; },400);
+    },3000);
+  </script>
+</body>
+</html>
